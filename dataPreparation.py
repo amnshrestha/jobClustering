@@ -11,8 +11,6 @@ from collections import Counter
 
 
 
-
-
 df = pd.read_csv("indeed_job_dataset.csv")
 
 
@@ -27,8 +25,6 @@ df['Skill'] = df['Skill'].str.replace(',', '')
 df['Skill'] = df['Skill'].str.replace('[', '')
 df['Skill'] = df['Skill'].str.replace(']', '')
 df['Skill'] = df['Skill'].str.replace('\'', '')
-
-
 
 
 skills_column = df['Skill'].astype(str)
@@ -46,11 +42,11 @@ JavaScript
 Ruby
 Jira
 '''
-df['Database'] =  skills_column.str.contains("SQL", case = False) |description.str.contains("SQL", case = False) | description.str.contains("DB", case = True)  
+df['Database'] =  skills_column.str.contains("SQL", case = False) |skills_column.str.contains("SQL", case = False) | skills_column.str.contains("DB", case = True)  
 df['Python'] =  skills_column.str.contains("Python", case = False) 
 df['R'] =  skills_column.str.contains("R", case = False) 
 df['Java'] =  skills_column.str.contains("Java", case = False) 
-df['C/C++'] =  skills_column.str.contains("C/C++", case = False) 
+df['C/C++'] =  skills_column.str.contains(" C ", case = True) | skills_column.str.contains("C\+\+", case = True) 
 df['Tensorflow'] =  skills_column.str.contains("Tensorflow", case = False) 
 df['JavaScript'] =  skills_column.str.contains("JavaScript", case = False)
 df['Ruby'] =  skills_column.str.contains("Ruby", case = False) 
