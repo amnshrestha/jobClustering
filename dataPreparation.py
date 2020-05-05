@@ -43,6 +43,19 @@ JavaScript
 Ruby
 Jira
 '''
+df['Database'] =  skills_column.str.contains("SQL", case = False) |description.str.contains("SQL", case = False) | description.str.contains("DB", case = True)  
+df['Python'] =  skills_column.str.contains("Python", case = False) 
+df['R'] =  skills_column.str.contains("R", case = False) 
+df['Java'] =  skills_column.str.contains("Java", case = False) 
+df['C/C++'] =  skills_column.str.contains("C/C++", case = False) 
+df['Tensorflow'] =  skills_column.str.contains("Tensorflow", case = False) 
+df['JavaScript'] =  skills_column.str.contains("JavaScript", case = False)
+df['Ruby'] =  skills_column.str.contains("Ruby", case = False) 
+df['Jira'] =  skills_column.str.contains("Jira", case = False) 
+df['Container'] = skills_column.str.contains("Docer", case = False) | skills_column.str.contains("Kubernetes", case = False)
+
+
+
 
 
 
@@ -77,7 +90,7 @@ df['Lead'] =  description.str.contains("lead", case = False) |description.str.co
 testdf = df.iloc[:20,:]
 testdescription = df['Description'].astype(str)
 testdf['Full'] = testdescription.str.contains("full ", case = False) | testdescription.str.contains("position ", case = False)
->>>>>>> cf924648c51ec87e155f88b3c7d7d7c365d86db0
+
 
 
 df = df.drop(['Description'], axis = 1)
