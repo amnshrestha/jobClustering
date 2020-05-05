@@ -23,6 +23,48 @@ df = df.drop(['python','sql','machine learning','r','hadoop','tableau','sas','sp
 description = df['Description'].astype(str)
 repeated = Counter(" ".join(description).split()).most_common(10000)
 
+df['Skill'] = df['Skill'].str.replace(',', '')
+df['Skill'] = df['Skill'].str.replace('[', '')
+df['Skill'] = df['Skill'].str.replace(']', '')
+df['Skill'] = df['Skill'].str.replace('\'', '')
+
+
+
+
+skills_column = df['Skill'].astype(str)
+repeated_skills = Counter(" ".join(skills_column).split()).most_common(10000)
+
+'''
+We will be using following top skills and will be categorizing remaining skills under Other
+SQL
+Python
+R
+Java
+C/C++
+Tensorflow
+JavaScript
+Ruby
+Jira
+'''
+df['Database'] =  skills_column.str.contains("SQL", case = False) |description.str.contains("SQL", case = False) | description.str.contains("DB", case = True)  
+df['Python'] =  skills_column.str.contains("Python", case = False) 
+df['R'] =  skills_column.str.contains("R", case = False) 
+df['Java'] =  skills_column.str.contains("Java", case = False) 
+df['C/C++'] =  skills_column.str.contains("C/C++", case = False) 
+df['Tensorflow'] =  skills_column.str.contains("Tensorflow", case = False) 
+df['JavaScript'] =  skills_column.str.contains("JavaScript", case = False)
+df['Ruby'] =  skills_column.str.contains("Ruby", case = False) 
+df['Jira'] =  skills_column.str.contains("Jira", case = False) 
+df['Container'] = skills_column.str.contains("Docer", case = False) | skills_column.str.contains("Kubernetes", case = False)
+
+
+
+
+
+
+
+
+
 '''
 We try and find the following properties
 BA/BS/Bachelor/Bachelor's
@@ -48,6 +90,7 @@ df['Lead'] =  description.str.contains("lead", case = False) |description.str.co
 
 
 df = df.replace(True,1)
+
 
 df = df.drop(['Description'], axis = 1)
 
