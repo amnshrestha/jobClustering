@@ -14,7 +14,10 @@ from collections import Counter
 
 
 df = pd.read_csv("indeed_job_dataset.csv")
+
+
 df = df.drop(['Unnamed: 0','Link','No_of_Skills','Location','Company_Industry'], axis = 1)
+df = df.drop(['python','sql','machine learning','r','hadoop','tableau','sas','spark','java','Others'], axis = 1)
 
 
 description = df['Description'].astype(str)
@@ -44,11 +47,7 @@ df['Finance'] =  description.str.contains("finance", case = False) |description.
 df['Lead'] =  description.str.contains("lead", case = False) |description.str.contains("leadership", case = False) |description.str.contains("leaders", case = False)  
 
 
-
-testdf = df.iloc[:20,:]
-testdescription = df['Description'].astype(str)
-testdf['Full'] = testdescription.str.contains("full ", case = False) | testdescription.str.contains("position ", case = False)
-
+df = df.replace(True,1)
 
 df = df.drop(['Description'], axis = 1)
 
@@ -56,7 +55,6 @@ df = df.drop(['Description'], axis = 1)
 
 
 
-df['Company_Employees']=df['Company_Employees'].str.replace(',','')
 
 
 
@@ -64,7 +62,7 @@ df['Company_Employees']=df['Company_Employees'].str.replace(',','')
 
 
 
-df.to_csv('newOne.csv')
+
 
 # =============================================================================
 # file = open("indeed_job_dataset.csv","r")
