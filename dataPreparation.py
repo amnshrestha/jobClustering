@@ -8,6 +8,12 @@ Created on Mon May  4 16:52:38 2020
 
 import pandas as pd
 from collections import Counter
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import MinMaxScaler
+from matplotlib import pyplot as plt
+
+
+
 
 
 
@@ -54,13 +60,6 @@ df['Jira'] =  skills_column.str.contains("Jira", case = False)
 df['Container'] = skills_column.str.contains("Docer", case = False) | skills_column.str.contains("Kubernetes", case = False)
 
 
-
-
-
-
-
-
-
 '''
 We try and find the following properties
 BA/BS/Bachelor/Bachelor's
@@ -86,18 +85,86 @@ df['Lead'] =  description.str.contains("lead", case = False) |description.str.co
 
 
 df = df.replace(True,1)
-
-
 df = df.drop(['Description'], axis = 1)
+df = df.drop(['Skill'], axis = 1)
+df = df.drop(['Date_Since_Posted'], axis = 1)
+
+
+
+df.insert(1,'CompanyName',df['Company'])
+df = df.drop(['Company'], axis = 1)
+
+#Fixing na values
+df['Company_Revenue'] = df['Company_Revenue'].fillna('Unknown_company_revenue')
+df['Company_Employees'] = df['Company_Employees'].fillna('Unknown_company_employees')
+df['CompanyName'] = df['CompanyName'].fillna('Unknown_company_name')
+
+df['No_of_Stars'] = df['No_of_Stars'].fillna(df['No_of_Stars'].mean())
+df['No_of_Reviews'] = df['No_of_Reviews'].fillna(df['No_of_Reviews'].median())
+
+
+# Get one hot encoding of columns 
+one_hot_content_job_type = pd.get_dummies(df['Job_Type'])
+df = df.drop('Job_Type',axis = 1)
+df = df.join(one_hot_content_job_type)
+
+one_hot_content_queried_salary = pd.get_dummies(df['Queried_Salary'])
+df = df.drop('Queried_Salary',axis = 1)
+df = df.join(one_hot_content_queried_salary)
+
+one_hot_content_company_revenue = pd.get_dummies(df['Company_Revenue'])
+df = df.drop('Company_Revenue',axis = 1)
+df = df.join(one_hot_content_company_revenue)
+
+one_hot_content_company_employee = pd.get_dummies(df['Company_Employees'])
+df = df.drop('Company_Employees',axis = 1)
+df = df.join(one_hot_content_company_employee)
 
 
 
 
 
+scaler = MinMaxScaler()
+scaler.fit(df[['No_of_Reviews']])
+df['No_of_Reviews'] = scaler.transform(df[['No_of_Reviews']])
+
+scaler = MinMaxScaler()
+scaler.fit(df[['No_of_Stars']])
+df['No_of_Stars'] = scaler.transform(df[['No_of_Stars']])
+
+y_toPredict = df.iloc[:,2:]
+
+# =============================================================================
+# k_rng = range(10,100)
+# sse = []
+# for k in k_rng:
+#     km = KMeans(n_clusters=k)
+#     km.fit(y_toPredict)
+#     sse.append(km.inertia_)
+#      
+# plt.xlabel('K')
+# plt.ylabel('Sum of squared error')
+# plt.plot(k_rng,sse)
+# =============================================================================
+#we chose 35
+num_cluster = 35
+km = KMeans(n_clusters=num_cluster)
+km.fit(y_toPredict)
+y_predicted = km.fit_predict(y_toPredict)
+df['cluster']=y_predicted
+
+
+nameList = [[None]] * num_cluster
+for i in range (0,num_cluster):
+    nameList[i] = list()
+
+
+for index, row in df.iterrows():
+    nameList[row['cluster']].append(row['Job_Title'] +","+row['CompanyName'])
 
 
 
-
+#nameList[row['cluster']].append(row)
 
 
 
