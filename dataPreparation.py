@@ -20,6 +20,34 @@ df = df.drop(['Unnamed: 0','Link','No_of_Skills','Location','Company_Industry'],
 description = df['Description'].astype(str)
 repeated = Counter(" ".join(description).split()).most_common(10000)
 
+df['Skill'] = df['Skill'].str.replace(',', '')
+df['Skill'] = df['Skill'].str.replace('[', '')
+df['Skill'] = df['Skill'].str.replace(']', '')
+df['Skill'] = df['Skill'].str.replace('\'', '')
+
+
+
+
+skills_column = df['Skill'].astype(str)
+repeated_skills = Counter(" ".join(skills_column).split()).most_common(10000)
+
+'''
+We will be using following top skills and will be categorizing remaining skills under Other
+SQL
+Python
+R
+Java
+C/C++
+Tensorflow
+JavaScript
+Ruby
+Jira
+'''
+
+
+
+
+
 
 
 
