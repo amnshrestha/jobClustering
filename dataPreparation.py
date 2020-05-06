@@ -8,18 +8,15 @@ Created on Mon May  4 16:52:38 2020
 
 import pandas as pd
 from collections import Counter
-from sklearn.cluster import KMeans
 from sklearn.preprocessing import MinMaxScaler
-from matplotlib import pyplot as plt
+#from matplotlib import pyplot as plt
 
 
 
 
 
-
+#Data Processing
 df = pd.read_csv("indeed_job_dataset.csv")
-
-
 df = df.drop(['Unnamed: 0','Link','No_of_Skills','Location','Company_Industry'], axis = 1)
 df = df.drop(['python','sql','machine learning','r','hadoop','tableau','sas','spark','java','Others'], axis = 1)
 
@@ -48,7 +45,7 @@ JavaScript
 Ruby
 Jira
 '''
-df['Database'] =  skills_column.str.contains("SQL", case = False) |skills_column.str.contains("SQL", case = False) | skills_column.str.contains("DB", case = True)  
+df['Database'] =  skills_column.str.contains("SQL", case = False) | skills_column.str.contains("DB", case = True)  
 df['Python'] =  skills_column.str.contains("Python", case = False) 
 df['R'] =  skills_column.str.contains("R", case = False) 
 df['Java'] =  skills_column.str.contains("Java", case = False) 
@@ -94,6 +91,7 @@ df = df.drop(['Date_Since_Posted'], axis = 1)
 df.insert(1,'CompanyName',df['Company'])
 df = df.drop(['Company'], axis = 1)
 
+
 #Fixing na values
 df['Company_Revenue'] = df['Company_Revenue'].fillna('Unknown_company_revenue')
 df['Company_Employees'] = df['Company_Employees'].fillna('Unknown_company_employees')
@@ -123,7 +121,7 @@ df = df.join(one_hot_content_company_employee)
 
 
 
-
+#Scaling values
 scaler = MinMaxScaler()
 scaler.fit(df[['No_of_Reviews']])
 df['No_of_Reviews'] = scaler.transform(df[['No_of_Reviews']])
@@ -134,8 +132,15 @@ df['No_of_Stars'] = scaler.transform(df[['No_of_Stars']])
 
 y_toPredict = df.iloc[:,2:]
 
+
+
+
+
+
+#K-Means algorithm
+from sklearn.cluster import KMeans
 # =============================================================================
-# k_rng = range(10,100)
+# k_rng = range(10,100,5)
 # sse = []
 # for k in k_rng:
 #     km = KMeans(n_clusters=k)
@@ -151,37 +156,75 @@ num_cluster = 35
 km = KMeans(n_clusters=num_cluster)
 km.fit(y_toPredict)
 y_predicted = km.fit_predict(y_toPredict)
-df['cluster']=y_predicted
+df['Cluster_From_km']=y_predicted
+
+#Birch Algorithm
+from sklearn.cluster import Birch
+brc = Birch(n_clusters=35)
+brc.fit(y_toPredict)
+df['Cluster_From_birch'] = brc.predict(y_toPredict)
 
 
-nameList = [[None]] * num_cluster
+#Affinity Propagation
+from sklearn.cluster import AffinityPropagation
+ap = AffinityPropagation(damping=0.5)
+ap.fit(y_toPredict)
+df['Cluster_From_ap'] = ap.predict(y_toPredict)
+
+#AgglomerativeClustering
+from sklearn.cluster import AgglomerativeClustering
+ac = AgglomerativeClustering(n_clusters=35)
+df['Cluster_From_ac'] = ac.fit_predict(y_toPredict)
+
+#MiniBatchKMeans
+from sklearn.cluster import MiniBatchKMeans
+mbk = MiniBatchKMeans(n_clusters=35)
+mbk.fit(y_toPredict)
+df['Cluster_From_mbk'] = mbk.predict(y_toPredict)
+
+
+
+
+nameListKmeans = [[None]] * num_cluster
 for i in range (0,num_cluster):
-    nameList[i] = list()
-
-
+    nameListKmeans[i] = list()
 for index, row in df.iterrows():
-    nameList[row['cluster']].append(row['Job_Title'] +","+row['CompanyName'])
+    nameListKmeans[row['Cluster_From_km']].append(row['Job_Title'] +","+row['CompanyName'])
+    
+
+nameListBirch = [[None]] * num_cluster
+for i in range (0,num_cluster):
+    nameListBirch[i] = list()
+for index, row in df.iterrows():
+    nameListBirch[row['Cluster_From_birch']].append(row['Job_Title'] +","+row['CompanyName'])
+    
+    
+nameListAffinityPropagation = [[None]] * df['Cluster_From_ap'].nunique()
+for i in range (0,num_cluster):
+    nameListAffinityPropagation[i] = list()
+for index, row in df.iterrows():
+    nameListAffinityPropagation[row['Cluster_From_ap']].append(row['Job_Title'] +","+row['CompanyName'])
+    
+    
+nameListAgglomerativeClustering = [[None]] * num_cluster
+for i in range (0,num_cluster):
+    nameListAgglomerativeClustering[i] = list()
+for index, row in df.iterrows():
+    nameListAgglomerativeClustering[row['Cluster_From_ac']].append(row['Job_Title'] +","+row['CompanyName'])
+    
+    
+nameListBatchKMeans = [[None]] * num_cluster
+for i in range (0,num_cluster):
+    nameListBatchKMeans[i] = list()
+for index, row in df.iterrows():
+    nameListBatchKMeans[row['Cluster_From_mbk']].append(row['Job_Title'] +","+row['CompanyName'])
 
 
 
-#nameList[row['cluster']].append(row)
 
+#Experiment
+import random
+rowToTest = df.iloc[random.randint(0, df.shape[0]),:]
 
+#Use prediction
 
-
-
-# =============================================================================
-# file = open("indeed_job_dataset.csv","r")
-# content = file.read()
-# 
-# content = content.replace("\"","")
-# content = content.replace("\'","")
-# 
-# f = open("fixed.csv", "a")
-# f.write(content)
-# f.close()
-# 
-# 
-# test = "\"Aman is Awesome\""
-# test = test.replace("\"","quotes")
-# =============================================================================
